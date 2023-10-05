@@ -28,7 +28,7 @@ def recommend_book(book_name):
 
 
 # Display
-st.title('Book recommendation sysytem')
+st.title('Book recommendation system')
 input_book_name = st.text_input('Find your favorite book')
-if st.button():
-    recommend_book(input_book_name)
+if st.button('Search'):
+    print(recommend_book(input_book_name))
