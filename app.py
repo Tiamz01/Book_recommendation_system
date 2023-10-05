@@ -3,7 +3,6 @@ import joblib
 import numpy as np
 import sklearn
 
-
 # Load the User-Book Ratings DataFrame
 user_book_ratings = joblib.load('user_book_ratings.joblib')
 
@@ -14,21 +13,28 @@ book_pivot = joblib.load('book_pivot_table.joblib')
 model = joblib.load('model.joblib')
 
 
-def recommend_book(book_name):
+def recommend_books(book_name):
     try:
         book_id = np.where(book_pivot.index == book_name)[0][0]
         distances, suggestions = model.kneighbors(book_pivot.iloc[book_id, :].values.reshape(1, -1), n_neighbors=6)
 
-        print(f'The book suggestions for {book_name} are:')
+        suggested_books = []
         for i in range(len(suggestions[0])):
-            print(book_pivot.index[suggestions[0][i]])
+            suggested_book = book_pivot.index[suggestions[0][i]]
+            if suggested_book != book_name:  # Exclude the searched book from suggestions
+                suggested_books.append(suggested_book)
+
+        # Join the suggested book titles with line breaks
+        return '\n'.join(suggested_books)
 
     except IndexError:
-        print(f'{book_name} is not available. You can check out the books below instead')
+        return f'Book "{book_name}" not found in the dataset. Please try another book.'
 
 
-# Display
-st.title('Book recommendation system')
-input_book_name = st.text_input('Find your favorite book')
-if st.button('Search'):
-    print(recommend_book(input_book_name))
+# Streamlit UI
+st.title('Book Recommendation System')
+input_book_name = st.text_input('Enter a book name:')
+if st.button('Recommend'):
+    suggested_books = recommend_books(input_book_name)
+    st.subheader('Book suggestions:')
+    st.write(suggested_books)
